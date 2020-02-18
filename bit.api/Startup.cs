@@ -59,6 +59,7 @@ namespace bit.api
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<ICountryService, CountryService>();
+            services.AddScoped<IResidenceService, ResidenceService>();
             services.AddScoped<IBlockService, BlockService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();

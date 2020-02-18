@@ -22,6 +22,7 @@ namespace bit.api.Controllers
         private readonly IAuthenticationService _authenticationService;
         private readonly ICountryService _countryService;
         private readonly IBlockService _blockService;
+        private readonly IResidenceService _residenceService;
         private IRepository<User> _userRepository;
         private readonly IUserAppContext _userAppContext;
         // GET api/values
@@ -29,12 +30,14 @@ namespace bit.api.Controllers
               IAuthenticationService authenticationService,
               ICountryService countryService,
               IBlockService blockService,
+              IResidenceService residenceService,
               IRepository<User> userRepository,
               IUserAppContext userAppContext)
         {
             _authenticationService = authenticationService;
             _countryService = countryService;
             _blockService = blockService;
+            _residenceService = residenceService;
             _userRepository = userRepository;
             _userAppContext = userAppContext;
         }
@@ -133,11 +136,33 @@ namespace bit.api.Controllers
         }
 
         [HttpGet("getSurroundingBlocksByBlock")]
-        public async Task<IActionResult> GetSurroundingBlocksByBlock(string blockId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetSurroundingBlocksByBlock(string blockId, string countryId)
         {
             //TODO: your code here
+            try
+            {
+                if (string.IsNullOrEmpty(blockId) || string.IsNullOrEmpty(countryId))
+                {
+                    return Json(new { IsSuccess = false, Message = "Invalid request parameters." });
+                }
 
-            return Json(new {IsSuccess = false}); //Replace this with real return values
+                if (!await _residenceService.GetIsResidentOfCountry(_userAppContext.CurrentUserId,countryId))
+                {
+                    return Json(new { IsSuccess = false, Message = "The current user is not the resident of the country." });
+                }
+
+                else
+                {
+                    var blocks = await _blockService.GetSurroundingBlocksByBlockId(blockId);
+
+                    return Json(new { IsSuccess = true, Blocks = blocks });
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(new { IsSuccess = false, Message = e.Message });
+            }
         }
 
         [HttpGet("getCountryByBlock")]

@@ -138,22 +138,22 @@ namespace bit.api.Domain.Services
                 var block = _blockRepository
                     .Get(x => x.Id == blockId)
                     .Select(x => new BlockViewModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Description = x.Description,
+                        Owner = new UserViewModel
                         {
-                            Id = x.Id,
-                            Name = x.Name,
-                            Description = x.Description,
-                            Owner = new UserViewModel
-                            {
-                                WalletAddress = x.OwnerAddress
-                            },
-                            TotalResidents = x.TotalResidents,
-                            BlockAxis = x.BlockAxis,
-                            BlockYxis = x.BlockYxis,
-                            CreatedOn = x.CreatedOn,
-                            CreatedBy = x.CreatedBy,
-                            UpdatedOn = x.UpdatedOn,
-                            UpdatedBy = x.UpdatedBy,
-                        })
+                            WalletAddress = x.OwnerAddress
+                        },
+                        TotalResidents = x.TotalResidents,
+                        BlockAxis = x.BlockAxis,
+                        BlockYxis = x.BlockYxis,
+                        CreatedOn = x.CreatedOn,
+                        CreatedBy = x.CreatedBy,
+                        UpdatedOn = x.UpdatedOn,
+                        UpdatedBy = x.UpdatedBy,
+                    })
                     .SingleOrDefault();
 
                 return block;
@@ -166,9 +166,71 @@ namespace bit.api.Domain.Services
 
         public async Task<List<BlockViewModel>> GetSurroundingBlocksByBlockId(string blockId)
         {
-            //TODO: your code here
+            try
+            {
+                //This throws a filter-unsuppoted exception due to that MongoDB doesn't support predict of comparing with fields but only with constant
 
-            return new List<BlockViewModel>(); //Replace this with real return values
+                //var blocks = (from a in _blockRepository.GetQueryable()
+                //             join b in _blockRepository.GetQueryable()
+                //             on a.CountryId equals b.CountryId 
+                //             where a.Id == blockId.ToLower() && 
+                //             b.BlockAxis >= a.BlockAxis -1 && b.BlockAxis <= a.BlockAxis + 1 &&
+                //             b.BlockYxis >= a.BlockYxis - 1 && b.BlockYxis <= a.BlockYxis + 1
+                //             select new BlockViewModel
+                //             {
+                //                 Id = a.Id,
+                //                 Name = a.Name,
+                //                 Description = a.Description,
+                //                 Owner = new UserViewModel
+                //                 {
+                //                     WalletAddress = a.OwnerAddress
+                //                 },
+                //                 TotalResidents = a.TotalResidents,
+                //                 BlockAxis = a.BlockAxis,
+                //                 BlockYxis = a.BlockYxis,
+                //                 CreatedOn = a.CreatedOn,
+                //                 CreatedBy = a.CreatedBy,
+                //                 UpdatedOn = a.UpdatedOn,
+                //                 UpdatedBy = a.UpdatedBy,
+                //             })
+                //    .ToList();                    
+
+                var centerBlock = _blockRepository.Get(x => x.Id == blockId).SingleOrDefault();
+                if (centerBlock == null)
+                {
+                    throw new ApplicationException("Get current block details error: The block doesn't exist.");
+                }
+
+                var surroundingBlocks = _blockRepository.Get(
+                    block => block.CountryId == centerBlock.CountryId
+                    && block.BlockAxis >= centerBlock.BlockAxis - 1 && block.BlockAxis <= centerBlock.BlockAxis + 1
+                    && block.BlockYxis >= centerBlock.BlockYxis - 1 && block.BlockYxis <= centerBlock.BlockYxis + 1
+                                        )
+                            .Select(x => new BlockViewModel
+                            {
+                                Id = x.Id,
+                                Name = x.Name,
+                                Description = x.Description,
+                                Owner = new UserViewModel
+                                {
+                                    WalletAddress = x.OwnerAddress
+                                },
+                                TotalResidents = x.TotalResidents,
+                                BlockAxis = x.BlockAxis,
+                                BlockYxis = x.BlockYxis,
+                                CreatedOn = x.CreatedOn,
+                                CreatedBy = x.CreatedBy,
+                                UpdatedOn = x.UpdatedOn,
+                                UpdatedBy = x.UpdatedBy,
+                            })
+                    .ToList();
+
+                return surroundingBlocks;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

@@ -9,14 +9,17 @@ using System.Text;
 namespace bit.common.Models
 {
     // TODO: Where do we keep role/permission related info?
-    class CountryResident : IMongoCommon
+    public class CountryResident : IMongoCommon
     {
         public Guid UId { get; set; }
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
         public string CountryId { get; set; }
-        public UserViewModel Resident { get; set; }
+        public string ResidentId { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public Guid UpdatedBy { get; set; }
+        public DateTime UpdatedOn { get; set; }
         public bool IsDeleted { get; set; }
     }
 }
