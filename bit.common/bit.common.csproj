@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.2.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.6.1" />
     <PackageReference Include="Nethereum.Web3" Version="2.5.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Sendgrid" Version="9.12.0" />
   </ItemGroup>
 
